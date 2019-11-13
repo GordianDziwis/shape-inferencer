@@ -1,0 +1,12 @@
+<http://example.org/InstanceOne> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/TypeOne> .
+<http://example.org/InstanceOne> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/TypeTwo> .
+<http://example.org/InstanceTwo> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/TypeOne> .
+<http://example.org/InstanceTwo> <http://example.org/PredicateOne> "One"^^<http://www.w3.org/2001/XMLSchema#string> .
+<http://example.org/InstanceTwo> <http://example.org/PredicateTwo> "1"^^<http://www.w3.org/2001/XMLSchema#double> .
+<http://example.org/InstanceTwo> <http://example.org/PredicateOne> "Two"^^<http://www.w3.org/2001/XMLSchema#string> .
+<http://example.org/InstanceTwo> <http://example.org/PredicateTwo> "2"^^<http://www.w3.org/2001/XMLSchema#double> .
+<http://example.org/InstanceTwo> <http://example.org/PredicateThree> <http://example.org/InstanceOne> .
+<http://example.org/InstanceOne> <http://example.org/PredicateOne> "1"^^<http://www.w3.org/2001/XMLSchema#double> .
+<http://example.org/InstanceOne> <http://example.org/PredicateOne> "Two"^^<http://www.w3.org/2001/XMLSchema#string> .
+<http://example.org/InstanceOne> <http://example.org/PredicateOne> <http://example.org/InstanceOne> .
+

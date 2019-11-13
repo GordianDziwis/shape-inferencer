@@ -1,0 +1,13 @@
+<configuration>
+    <appender name="colorAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d %green([%thread]) %highlight(%level) %logger{50} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <logger name="org.aksw.shape_inferencer.Main" level="debug" additivity="false">
+        <appender-ref ref="colorAppender" />
+    </logger>
+    <root level="warn">
+        <appender-ref ref="colorAppender" />
+    </root>
+</configuration>

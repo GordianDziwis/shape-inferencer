@@ -7,14 +7,14 @@ lazy val sparkVersion = "2.4.3"
 
 lazy val root = (project in file(".")).settings(
   name := "shape-inferencer",
-  dependencyOverrides ++= Seq(
-    "com.fasterxml.jackson.core" % "jackson-core" % "2.8.7",
-    "com.fasterxml.jackson.core" % "jackson-databind" % "2.8.7",
-    "com.fasterxml.jackson.module" % "jackson-module-scala_2.11" % "2.8.7"
+  resolvers ++= Seq(
+    "AKSW Maven Releases" at "http://maven.aksw.org/archiva/repository/internal",
   ),
   libraryDependencies ++= Seq(
+    "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
     "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
     "org.apache.spark" %% "spark-sql" % sparkVersion % "provided",
+    "net.sansa-stack" %% "sansa-rdf-spark" % sansaVersion,
     "org.scala-lang" % "scala-library" % scalaVersion.value,
     "com.intel.analytics.bigdl" % "bigdl-SPARK_2.2" % "0.4.0",
     "javax.ws.rs" % "javax.ws.rs-api" % "2.1" artifacts (Artifact(
@@ -22,37 +22,28 @@ lazy val root = (project in file(".")).settings(
       "jar",
       "jar"
     ))
-  ),
-  resolvers ++= Seq(
-    "AKSW Maven Releases" at "http://maven.aksw.org/archiva/repository/internal",
-    "AKSW Maven Snapshots" at "http://maven.aksw.org/archiva/repository/snapshots",
-    "oss-sonatype" at "https://oss.sonatype.org/content/repositories/snapshots/",
-    "Apache repository (snapshots)" at "https://repository.apache.org/content/repositories/snapshots/",
-    "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/",
-    "NetBeans" at "http://bits.netbeans.org/nexus/content/groups/netbeans/",
-    "gephi" at "https://raw.github.com/gephi/gephi/mvn-thirdparty-repo/",
-    Resolver.defaultLocal,
-    Resolver.mavenLocal,
-    "Local Maven Repository" at "file://" + Path.userHome.absolutePath + "/.m2/repository",
-    "Apache Staging" at "https://repository.apache.org/content/repositories/staging/"
-  ),
+  ).map(_.exclude("org.slf4j", "*")),
   libraryDependencies ++= Seq(
-    "net.sansa-stack" %% "sansa-rdf-spark" % sansaVersion,
-    "net.sansa-stack" %% "sansa-owl-spark" % sansaVersion,
-    "net.sansa-stack" %% "sansa-inference-spark" % sansaVersion,
-    "net.sansa-stack" %% "sansa-query-spark" % sansaVersion,
-    "net.sansa-stack" %% "sansa-ml-spark" % sansaVersion
+    "ch.qos.logback" % "logback-classic" % "1.1.3"
   ),
-  bloopAggregateSourceDependencies in Global := true,
-  bloopExportJarClassifiers in Global := Some(Set("sources"))
+  dependencyOverrides ++= Seq(
+    "com.fasterxml.jackson.core" % "jackson-core" % "2.8.7",
+    "com.fasterxml.jackson.core" % "jackson-databind" % "2.8.7",
+    "com.fasterxml.jackson.module" % "jackson-module-scala_2.11" % "2.8.7",
+    "org.apache.jena" % "jena-core" % "3.11.0"
+  ),
 )
-
+assemblyMergeStrategy in assembly := {
+  case PathList("META-INF", "services", xs @ _*) => MergeStrategy.filterDistinctLines
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case x => MergeStrategy.first
+}
+logLevel in assembly := Level.Info
 scalacOptions ++= Seq(
   "-deprecation",
 // format: off
   "-encoding", "UTF-8",
 // format: on
-
   "-unchecked",
   "-Xfatal-warnings",
   "-Xlint",
@@ -62,4 +53,3 @@ scalacOptions ++= Seq(
   "-Ywarn-unused-import",
   "-Ywarn-value-discard",
 )
-

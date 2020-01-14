@@ -12,6 +12,7 @@ lazy val root = (project in file(".")).settings(
   ),
   libraryDependencies ++= Seq(
     "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
+    "org.apache.jena" % "jena-shacl" % "3.13.1",
     "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
     "org.apache.spark" %% "spark-sql" % sparkVersion % "provided",
     "net.sansa-stack" %% "sansa-rdf-spark" % sansaVersion,

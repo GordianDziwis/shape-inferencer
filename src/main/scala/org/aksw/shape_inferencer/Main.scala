@@ -9,6 +9,15 @@ import scala.collection.mutable.HashMap
 import scala.collection.immutable.SortedSet
 import com.typesafe.scalalogging.LazyLogging
 
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.shacl.vocabulary.SHACLM;
+import org.apache.jena.sparql.path.Path;
+import org.apache.jena.vocabulary.RDF;
+import org.apache.jena.vocabulary.RDFS;
+import org.apache.jena.vocabulary.XSD;
+import scala.util.hashing.MurmurHash3
+
 object Main extends LazyLogging {
 
   implicit val myOrdering = Ordering.fromLessThan[Node](_.getURI > _.getURI)
@@ -76,7 +85,7 @@ object Main extends LazyLogging {
         true
       )
     val graphSummary = instanceTypeSets
-      // ((Set(Type Subject), Predicate, Set(Type Object), Subject), card)
+    // ((Set(Type Subject), Predicate, Set(Type Object), Subject), card)
       .reduceByKey(_ + _)
       // ((Set(Type Subject), Predicate, Set(Type Object)), card -> 1)
       .map(
@@ -98,7 +107,46 @@ object Main extends LazyLogging {
       )
     graphSummary.foreach(println)
     typeCount.foreach(println)
+    val inputfoo = graphSummary.collect()
     spark.stop
+    val model: Model = ModelFactory.createDefaultModel()
+    model.setNsPrefix("rdf", RDF.getURI)
+    model.setNsPrefix("rdfs", RDFS.getURI)
+    model.setNsPrefix("xsd", XSD.getURI)
+    model.setNsPrefix("sh", SHACLM.getURI)
+    inputfoo map (
+        x => createShapes(x, model)
+    )
+    model.write(System.out, "Turtle")
+  }
+
+  def createShapes(
+      tuple: (
+          (SortedSet[Node], Node, SortedSet[Node]),
+          scala.collection.immutable.HashMap[Long, Long]
+      ),
+      model: Model
+  ) = {
+    val subjectTypes = tuple._1._1
+    val objectTypes = tuple._1._3
+    val predicate = tuple._1._2
+    val inferencerNs = "http://inferencer.com/"
+    val subjectHash = MurmurHash3.stringHash(subjectTypes.toString)
+    val objectHash = MurmurHash3.stringHash(objectTypes.toString)
+    val subjectShape = model.createResource(inferencerNs + subjectHash)
+    val objectShape = model.createResource(inferencerNs + objectHash)
+    subjectTypes map { node =>
+      subjectShape.addProperty(SHACLM.targetClass, node.getURI)
+    }
+    objectTypes map { node =>
+      objectShape.addProperty(SHACLM.targetClass, node.getURI)
+    }
+    subjectShape.addProperty(SHACLM.property,
+                             model
+                               .createResource()
+                               .addProperty(SHACLM.path, predicate.getURI)
+                               .addProperty(SHACLM.node, objectShape))
+
   }
 
   case class Config(in: String = "")
